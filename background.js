@@ -1,8 +1,25 @@
 const CSS_STYLE_CODE = `
-      *:not(head):not(script) {
-        outline: 1px solid red;
-      }
-    `;
+  *:not(head):not(script) {
+    outline: 1px solid red;
+  }
+`;
+
+function getCssStyleStatus(tabId) {
+  return browser.storage.local.get(`cssStyleStatus_${tabId}`)
+    .then((result) => result[`cssStyleStatus_${tabId}`])
+    .catch((error) => {
+      console.error('Failed to retrieve CSS style status:', error);
+      return null;
+    });
+}
+
+function setCssStyleStatus(tabId, status) {
+  return browser.storage.local.set({ [`cssStyleStatus_${tabId}`]: status })
+    .catch((error) => {
+      console.error('Failed to set CSS style status:', error);
+    });
+}
+
 function applyCssStyle(tabId) {
   // Apply the CSS style
   browser.tabs.insertCSS(tabId, {
@@ -10,6 +27,7 @@ function applyCssStyle(tabId) {
   })
     .then(() => {
       console.log('CSS style applied for tab:', tabId);
+      setCssStyleStatus(tabId, 'on');
     })
     .catch((error) => {
       console.error('Failed to apply CSS style:', error);
@@ -23,6 +41,7 @@ function removeCssStyle(tabId) {
   })
     .then(() => {
       console.log('CSS style removed for tab:', tabId);
+      setCssStyleStatus(tabId, 'off');
     })
     .catch((error) => {
       console.error('Failed to remove CSS style:', error);
@@ -31,34 +50,24 @@ function removeCssStyle(tabId) {
 
 function toggleCssStyle(tab) {
   const tabId = tab.id;
-  browser.storage.local.get('cssStyleStatus')
-    .then((result) => {
-      const cssStyleStatus = result.cssStyleStatus;
-		console.log(cssStyleStatus);
+  getCssStyleStatus(tabId)
+    .then((cssStyleStatus) => {
+      console.log(cssStyleStatus);
       if (cssStyleStatus === 'on') {
         removeCssStyle(tabId);
-        browser.storage.local.set({ cssStyleStatus: 'off' });
       } else {
         applyCssStyle(tabId);
-        browser.storage.local.set({ cssStyleStatus: 'on' });
       }
-    })
-    .catch((error) => {
-      console.error('Failed to retrieve CSS style status:', error);
     });
 }
 
 function reApplyCssStyle(tab) {
   const tabId = tab.id;
-  browser.storage.local.get('cssStyleStatus')
-    .then((result) => {
-      const cssStyleStatus = result.cssStyleStatus;
+  getCssStyleStatus(tabId)
+    .then((cssStyleStatus) => {
       if (cssStyleStatus === 'on') {
         applyCssStyle(tabId);
       }
-    })
-    .catch((error) => {
-      console.error('Failed to retrieve CSS style status:', error);
     });
 }
 
