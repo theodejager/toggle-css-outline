@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Toggle CSS outline",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Simple extension that toggles a red outline around all elements in a page on/off, useful for CSS debugging.",
   "icons": {
     "48": "icon.png"
